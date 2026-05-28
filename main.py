@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from functools import total_ordering
-
-
 ERROR_MESSAGE = 'Ошибка'
+
+
+def is_valid_grade(grade):
+    return isinstance(grade, (int, float)) and 1 <= grade <= 10
 
 
 def calculate_average(grades):
@@ -35,7 +36,6 @@ def format_courses(courses):
     return ', '.join(courses)
 
 
-@total_ordering
 class Student:
     def __init__(self, name, surname, gender):
         self.name = name
@@ -52,7 +52,7 @@ class Student:
             return ERROR_MESSAGE
         if course not in lecturer.courses_attached:
             return ERROR_MESSAGE
-        if not 1 <= grade <= 10:
+        if not is_valid_grade(grade):
             return ERROR_MESSAGE
 
         lecturer.grades.setdefault(course, []).append(grade)
@@ -84,6 +84,24 @@ class Student:
 
         return self.get_average_grade() < other.get_average_grade()
 
+    def __le__(self, other):
+        if not isinstance(other, Student):
+            return NotImplemented
+
+        return self.get_average_grade() <= other.get_average_grade()
+
+    def __gt__(self, other):
+        if not isinstance(other, Student):
+            return NotImplemented
+
+        return self.get_average_grade() > other.get_average_grade()
+
+    def __ge__(self, other):
+        if not isinstance(other, Student):
+            return NotImplemented
+
+        return self.get_average_grade() >= other.get_average_grade()
+
 
 class Mentor:
     def __init__(self, name, surname):
@@ -91,8 +109,10 @@ class Mentor:
         self.surname = surname
         self.courses_attached = []
 
+    def __str__(self):
+        return f'Имя: {self.name}\nФамилия: {self.surname}'
 
-@total_ordering
+
 class Lecturer(Mentor):
     def __init__(self, name, surname):
         super().__init__(name, surname)
@@ -105,8 +125,7 @@ class Lecturer(Mentor):
         average_grade = round(self.get_average_grade(), 1)
 
         return (
-            f'Имя: {self.name}\n'
-            f'Фамилия: {self.surname}\n'
+            f'{super().__str__()}\n'
             f'Средняя оценка за лекции: {average_grade}'
         )
 
@@ -122,6 +141,24 @@ class Lecturer(Mentor):
 
         return self.get_average_grade() < other.get_average_grade()
 
+    def __le__(self, other):
+        if not isinstance(other, Lecturer):
+            return NotImplemented
+
+        return self.get_average_grade() <= other.get_average_grade()
+
+    def __gt__(self, other):
+        if not isinstance(other, Lecturer):
+            return NotImplemented
+
+        return self.get_average_grade() > other.get_average_grade()
+
+    def __ge__(self, other):
+        if not isinstance(other, Lecturer):
+            return NotImplemented
+
+        return self.get_average_grade() >= other.get_average_grade()
+
 
 class Reviewer(Mentor):
     def rate_homework(self, student, course, grade):
@@ -131,13 +168,10 @@ class Reviewer(Mentor):
             return ERROR_MESSAGE
         if course not in student.courses_in_progress:
             return ERROR_MESSAGE
-        if not 1 <= grade <= 10:
+        if not is_valid_grade(grade):
             return ERROR_MESSAGE
 
         student.grades.setdefault(course, []).append(grade)
-
-    def __str__(self):
-        return f'Имя: {self.name}\nФамилия: {self.surname}'
 
 
 def get_students_average_grade(students, course):
