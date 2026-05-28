@@ -225,6 +225,23 @@ def run_demo():
     reviewer_1.courses_attached += ['Python', 'C++']
     reviewer_2.courses_attached += ['Python', 'Git', 'Java']
 
+    print('Демонстрация отказов при выставлении оценок:')
+
+    # Отказ по роли: студент не может оценить другого студента.
+    role_error = student_1.rate_lecture(student_2, 'Python', 10)
+    print(f'ОТКАЗ ПО РОЛИ: {role_error}')
+
+    # Отказ по курсу: студент не изучает C++, поэтому не может оценить лектора.
+    course_error = student_1.rate_lecture(lecturer_1, 'C++', 8)
+    print(f'ОТКАЗ ПО КУРСУ: {course_error}')
+
+    # Дополнительные отказы для метода проверки домашних заданий.
+    homework_role_error = reviewer_1.rate_homework(lecturer_1, 'Python', 8)
+    homework_course_error = reviewer_1.rate_homework(student_1, 'Java', 8)
+    print(f'ОТКАЗ ПО РОЛИ ДЛЯ ДЗ: {homework_role_error}')
+    print(f'ОТКАЗ ПО КУРСУ ДЛЯ ДЗ: {homework_course_error}')
+    print()
+
     print(isinstance(lecturer_1, Mentor))
     print(isinstance(reviewer_1, Mentor))
     print(lecturer_1.courses_attached)
@@ -238,33 +255,11 @@ def run_demo():
     print(lecturer_1.grades)
     print()
 
-    print('Демонстрация ошибок при оценке лекций:')
-    print(
-        'Студент пытается оценить другого студента: '
-        f'{student_1.rate_lecture(student_2, "Python", 10)}'
-    )
-    print(
-        'Студент пытается оценить лектора по чужому курсу: '
-        f'{student_1.rate_lecture(lecturer_2, "Git", 10)}'
-    )
-    print()
-
     reviewer_1.rate_homework(student_1, 'Python', 8)
     reviewer_1.rate_homework(student_1, 'Python', 9)
     reviewer_2.rate_homework(student_1, 'Java', 10)
     reviewer_1.rate_homework(student_2, 'Python', 7)
     reviewer_2.rate_homework(student_2, 'Git', 9)
-
-    print('Демонстрация ошибок при оценке домашних заданий:')
-    print(
-        'Проверяющий пытается оценить не студента: '
-        f'{reviewer_1.rate_homework(lecturer_1, "Python", 8)}'
-    )
-    print(
-        'Проверяющий пытается оценить студента по чужому курсу: '
-        f'{reviewer_1.rate_homework(student_1, "Java", 8)}'
-    )
-    print()
 
     student_2.rate_lecture(lecturer_1, 'Python', 9)
     student_1.rate_lecture(lecturer_2, 'Python', 10)
@@ -272,6 +267,10 @@ def run_demo():
 
     assert isinstance(lecturer_1, Mentor)
     assert isinstance(reviewer_1, Mentor)
+    assert role_error == ERROR_MESSAGE
+    assert course_error == ERROR_MESSAGE
+    assert homework_role_error == ERROR_MESSAGE
+    assert homework_course_error == ERROR_MESSAGE
     assert lecturer_1.grades == {'Python': [7, 9]}
     assert student_1.grades == {'Python': [8, 9], 'Java': [10]}
     assert student_1 > student_2
