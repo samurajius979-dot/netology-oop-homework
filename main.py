@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
+"""Решение домашнего задания по ООП для учебной группы."""
 
 ERROR_MESSAGE = 'Ошибка'
 
 
 def is_valid_grade(grade):
+    """Проверяет, что оценка является числом от 1 до 10."""
+    if isinstance(grade, bool):
+        return False
+
     return isinstance(grade, (int, float)) and 1 <= grade <= 10
 
 
 def calculate_average(grades):
+    """Возвращает среднюю оценку по словарю с оценками за курсы."""
     all_grades = []
     for course_grades in grades.values():
         all_grades.extend(course_grades)
@@ -19,6 +25,7 @@ def calculate_average(grades):
 
 
 def calculate_course_average(people, course):
+    """Возвращает среднюю оценку всех объектов по конкретному курсу."""
     course_grades = []
     for person in people:
         course_grades.extend(person.grades.get(course, []))
@@ -30,6 +37,7 @@ def calculate_course_average(people, course):
 
 
 def format_courses(courses):
+    """Форматирует список курсов для вывода на экран."""
     if not courses:
         return 'Нет'
 
@@ -37,6 +45,8 @@ def format_courses(courses):
 
 
 class Student:
+    """Студент учебной группы."""
+
     def __init__(self, name, surname, gender):
         self.name = name
         self.surname = surname
@@ -104,6 +114,8 @@ class Student:
 
 
 class Mentor:
+    """Базовый класс для наставников."""
+
     def __init__(self, name, surname):
         self.name = name
         self.surname = surname
@@ -114,6 +126,8 @@ class Mentor:
 
 
 class Lecturer(Mentor):
+    """Лектор, который получает оценки от студентов."""
+
     def __init__(self, name, surname):
         super().__init__(name, surname)
         self.grades = {}
@@ -161,6 +175,8 @@ class Lecturer(Mentor):
 
 
 class Reviewer(Mentor):
+    """Проверяющий, который выставляет оценки студентам."""
+
     def rate_homework(self, student, course, grade):
         if not isinstance(student, Student):
             return ERROR_MESSAGE
@@ -173,16 +189,22 @@ class Reviewer(Mentor):
 
         student.grades.setdefault(course, []).append(grade)
 
+    def __str__(self):
+        return super().__str__()
+
 
 def get_students_average_grade(students, course):
+    """Возвращает среднюю оценку студентов за курс."""
     return calculate_course_average(students, course)
 
 
 def get_lecturers_average_grade(lecturers, course):
+    """Возвращает среднюю оценку лекторов за курс."""
     return calculate_course_average(lecturers, course)
 
 
 def run_demo():
+    """Показывает работу всех классов, методов и функций."""
     lecturer_1 = Lecturer('Иван', 'Иванов')
     lecturer_2 = Lecturer('Анна', 'Смирнова')
 
