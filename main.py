@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
+
 from functools import total_ordering
 
 
 ERROR_MESSAGE = 'Ошибка'
 
 
-def get_average_grade(grades):
+def calculate_average(grades):
     all_grades = []
     for course_grades in grades.values():
         all_grades.extend(course_grades)
@@ -13,6 +15,17 @@ def get_average_grade(grades):
         return 0
 
     return sum(all_grades) / len(all_grades)
+
+
+def calculate_course_average(people, course):
+    course_grades = []
+    for person in people:
+        course_grades.extend(person.grades.get(course, []))
+
+    if not course_grades:
+        return 0
+
+    return sum(course_grades) / len(course_grades)
 
 
 def format_courses(courses):
@@ -24,9 +37,9 @@ def format_courses(courses):
 
 @total_ordering
 class Student:
-    def __init__(self, first_name, last_name, gender):
-        self.first_name = first_name
-        self.last_name = last_name
+    def __init__(self, name, surname, gender):
+        self.name = name
+        self.surname = surname
         self.gender = gender
         self.finished_courses = []
         self.courses_in_progress = []
@@ -45,14 +58,14 @@ class Student:
         lecturer.grades.setdefault(course, []).append(grade)
 
     def get_average_grade(self):
-        return get_average_grade(self.grades)
+        return calculate_average(self.grades)
 
     def __str__(self):
         average_grade = round(self.get_average_grade(), 1)
 
         return (
-            f'Имя: {self.first_name}\n'
-            f'Фамилия: {self.last_name}\n'
+            f'Имя: {self.name}\n'
+            f'Фамилия: {self.surname}\n'
             f'Средняя оценка за домашние задания: {average_grade}\n'
             'Курсы в процессе изучения: '
             f'{format_courses(self.courses_in_progress)}\n'
@@ -73,27 +86,27 @@ class Student:
 
 
 class Mentor:
-    def __init__(self, first_name, last_name):
-        self.first_name = first_name
-        self.last_name = last_name
+    def __init__(self, name, surname):
+        self.name = name
+        self.surname = surname
         self.courses_attached = []
 
 
 @total_ordering
 class Lecturer(Mentor):
-    def __init__(self, first_name, last_name):
-        super().__init__(first_name, last_name)
+    def __init__(self, name, surname):
+        super().__init__(name, surname)
         self.grades = {}
 
     def get_average_grade(self):
-        return get_average_grade(self.grades)
+        return calculate_average(self.grades)
 
     def __str__(self):
         average_grade = round(self.get_average_grade(), 1)
 
         return (
-            f'Имя: {self.first_name}\n'
-            f'Фамилия: {self.last_name}\n'
+            f'Имя: {self.name}\n'
+            f'Фамилия: {self.surname}\n'
             f'Средняя оценка за лекции: {average_grade}'
         )
 
@@ -124,29 +137,15 @@ class Reviewer(Mentor):
         student.grades.setdefault(course, []).append(grade)
 
     def __str__(self):
-        return f'Имя: {self.first_name}\nФамилия: {self.last_name}'
+        return f'Имя: {self.name}\nФамилия: {self.surname}'
 
 
 def get_students_average_grade(students, course):
-    course_grades = []
-    for student in students:
-        course_grades.extend(student.grades.get(course, []))
-
-    if not course_grades:
-        return 0
-
-    return sum(course_grades) / len(course_grades)
+    return calculate_course_average(students, course)
 
 
 def get_lecturers_average_grade(lecturers, course):
-    course_grades = []
-    for lecturer in lecturers:
-        course_grades.extend(lecturer.grades.get(course, []))
-
-    if not course_grades:
-        return 0
-
-    return sum(course_grades) / len(course_grades)
+    return calculate_course_average(lecturers, course)
 
 
 def run_demo():
@@ -200,7 +199,9 @@ def run_demo():
     assert student_1 > student_2
     assert lecturer_2 > lecturer_1
     assert get_students_average_grade([student_1, student_2], 'Python') == 8
-    assert round(get_lecturers_average_grade([lecturer_1, lecturer_2], 'Python'), 1) == 8.7
+    assert round(get_lecturers_average_grade(
+        [lecturer_1, lecturer_2], 'Python'
+    ), 1) == 8.7
 
     print(reviewer_1)
     print()
